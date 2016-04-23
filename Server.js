@@ -1,7 +1,6 @@
 var express = require("express");
 var mysql   = require("mysql");
 var bodyParser  = require("body-parser");
-var md5 = require('MD5');
 var rest = require("./REST.js");
 var app  = express();
 
@@ -13,7 +12,7 @@ function REST(){
 REST.prototype.connectMysql = function() {
     var self = this;
     var pool      =    mysql.createPool({
-        connectionLimit : 100,
+        connectionLimit : 1,
         host     : 'localhost',
         user     : 'root',
         password : 'radikan',
@@ -36,7 +35,7 @@ REST.prototype.configureExpress = function(connection) {
       app.use(bodyParser.json());
       var router = express.Router();
       app.use('/', router);
-      var rest_router = new rest(router,connection,md5);
+      var rest_router = new rest(router,connection);
       self.startServer();
 }
 
