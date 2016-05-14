@@ -227,49 +227,24 @@ REST_ROUTER.prototype.handleRoutes= function(router,pool) {
 					connection.release();
 					res.json({"Error" : true, "Message" : "Error inserting addQuiz"});
 				} else { 
-					var insertQuizChoices1 = "INSERT INTO ??(??, ??, ??) VALUES (?, ?, ?);"
-					var params1 = ["quiz_choices", "quiz_id", "choice", "is_right_choice", rows.insertId, req.body.quizChoices[0].choice, req.body.quizChoices[0].isRightChoice.toString()];
-					insertQuizChoices1 = mysql.format(insertQuizChoices1,params1);
+					var i;
+					var insertStatement = "";
+					for (i = 0; i < req.body.quizChoices.length; i++) { 
+						var choice = req.body.quizChoices[i];
 
-					connection.query(insertQuizChoices1,function(err,rows){
-						if (req.body.quizChoices.length == 4) {
-							connection.release();
-						}
+						var insertQuizChoices = "INSERT INTO ??(??, ??, ??) VALUES (?, ?, ?);"
+						var params = ["quiz_choices", "quiz_id", "choice", "is_right_choice", rows.insertId, choice.choice, choice.isRightChoice.toString()];
+						insertStatement += mysql.format(insertQuizChoices, params);
+					}
 
+					connection.query(insertStatement,function(err,rows){
+						connection.release();
 						if(err) {
-							connection.release();
 							res.json({"Error" : true, "Message" : "Error inserting addQuiz"});
 						} else { 
-							if (req.body.quizChoices.length == 1){
-								res.json({"status" : "success"});
-							}
+							res.json({"status" : "success"});
 						}
 					});
-
-					if (req.body.quizChoices.length == 4) {
-						var insertQuizChoices2 = "INSERT INTO ??(??, ??, ??) VALUES (?, ?, ?);"
-						var params2 = ["quiz_choices", "quiz_id", "choice", "is_right_choice", rows.insertId, req.body.quizChoices[1].choice, req.body.quizChoices[1].isRightChoice.toString()];
-						var insertQuizChoices2 = mysql.format(insertQuizChoices2, params2);
-
-						var insertQuizChoices3= "INSERT INTO ??(??, ??, ??) VALUES (?, ?, ?);"
-						var params3 = ["quiz_choices", "quiz_id", "choice", "is_right_choice", rows.insertId, req.body.quizChoices[2].choice, req.body.quizChoices[2].isRightChoice.toString()];
-						var insertQuizChoices3 = mysql.format(insertQuizChoices3,params3);
-
-						var insertQuizChoices4 = "INSERT INTO ??(??, ??, ??) VALUES (?, ?, ?);"
-						var params4 = ["quiz_choices", "quiz_id", "choice", "is_right_choice", rows.insertId, req.body.quizChoices[3].choice, req.body.quizChoices[3].isRightChoice.toString()];
-						var insertQuizChoices4 = mysql.format(insertQuizChoices4,params4);
-
-						var insertQuizChoices = insertQuizChoices2 + insertQuizChoices3 + insertQuizChoices4;
-						connection.query(insertQuizChoices,function(err,rows){
-							connection.release();
-							if(err) {
-								res.json({"Error" : true, "Message" : "Error inserting addQuiz"});
-							} else { 
-								res.json({"status" : "success"});
-							}
-						});
-
-					}
 
 				}
 
