@@ -20,22 +20,16 @@ REST.prototype.connectMysql = function() {
         debug    :  false,
         multipleStatements: true
     });
-    pool.getConnection(function(err,connection){
-        if(err) {
-          self.stop(err);
-        } else {
-          self.configureExpress(connection);
-        }
-    });
+    self.configureExpress(pool);
 }
 
-REST.prototype.configureExpress = function(connection) {
+REST.prototype.configureExpress = function(pool) {
       var self = this;
       app.use(bodyParser.urlencoded({ extended: true }));
       app.use(bodyParser.json());
       var router = express.Router();
       app.use('/', router);
-      var rest_router = new rest(router,connection);
+      var rest_router = new rest(router,pool);
       self.startServer();
 }
 
